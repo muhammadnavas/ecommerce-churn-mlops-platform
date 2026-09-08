@@ -1,0 +1,39 @@
+project:
+  name: "E-Commerce Sales Analytics & Customer Churn Prediction"
+  version: "1.0.0"
+
+paths:
+  raw_data_dir: "data/raw"
+  staging_data_dir: "data/staging"
+  warehouse_db_path: "data/warehouse/ecommerce_dw.db"
+  rejected_records_log: "logs/rejected_records.csv"
+  pipeline_log: "logs/pipeline.log"
+  models_dir: "models"
+  mlflow_tracking_uri: "sqlite:///data/warehouse/mlflow.db"
+
+etl:
+  batch_file_pattern: "batch_*.csv"
+  date_format: "%Y-%m-%d %H:%M:%S"
+  currency: "GBP"
+  default_country: "United Kingdom"
+  min_quantity: 1
+  min_unit_price: 0.001
+
+mlops:
+  churn_inactivity_days: 90
+  test_size: 0.2
+  random_state: 42
+  experiment_name: "ecommerce_churn_prediction"
+  registered_model_name: "CustomerChurnClassifier"
+  models_to_train:
+    - "logistic_regression"
+    - "random_forest"
+    - "xgboost"
+
+drift:
+  psi_threshold: 0.1
+  ks_pvalue_threshold: 0.05
+
+api:
+  host: "0.0.0.0"
+  port: 8000
