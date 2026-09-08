@@ -7,12 +7,13 @@ The **E-Commerce Sales Analytics & Customer Churn Prediction Platform** is engin
 ```mermaid
 flowchart TD
     subgraph Data Source Layer
-        A1[UCI Online Retail CSV Extracts]
-        A2[Simulated Monthly Batches]
+        A1[UCI Online Retail Dataset: Online Retail.xlsx]
+        A1 -->|src/etl/convert_excel.py| A2[13 Monthly Batch CSVs: data/raw/batch_*.csv]
     end
 
     subgraph Data Ingestion & Quality Layer
-        B1[src/etl/ingest.py] -->|Log Metadata| B2[logs/ingestion_history.csv]
+        A2 --> B1[src/etl/ingest.py]
+        B1 -->|Log Metadata| B2[logs/ingestion_history.csv]
         B1 -->|Raw Landing Combined| B3[data/staging/raw_combined.csv]
         B3 --> C1[src/etl/clean.py]
         C1 -->|Validation Errors| C2[logs/rejected_records.csv]

@@ -4,7 +4,10 @@ Trains Logistic Regression, Random Forest, and XGBoost models,
 logs metrics & artifacts with MLflow (with fallback), and exports the best model.
 """
 
+import sys
 import os
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
+
 import json
 import joblib
 import pandas as pd

@@ -13,11 +13,11 @@
   ],
   "results": {
     "logistic_regression": {
-      "accuracy": 0.9705882352941176,
+      "accuracy": 0.9908571428571429,
       "precision": 1.0,
-      "recall": 0.9259259259259259,
-      "f1_score": 0.9615384615384616,
-      "roc_auc": 0.9981933152664859
+      "recall": 0.9725085910652921,
+      "f1_score": 0.9860627177700348,
+      "roc_auc": 0.9992056206750459
     },
     "random_forest": {
       "accuracy": 1.0,
@@ -27,12 +27,12 @@
       "roc_auc": 1.0
     },
     "xgboost": {
-      "accuracy": 1.0,
-      "precision": 1.0,
+      "accuracy": 0.9988571428571429,
+      "precision": 0.9965753424657534,
       "recall": 1.0,
-      "f1_score": 1.0,
+      "f1_score": 0.9982847341337907,
       "roc_auc": 1.0
     }
   },
-  "trained_at": "2026-09-06T20:04:06.628833"
+  "trained_at": "2026-09-08T22:31:12.309179"
 }

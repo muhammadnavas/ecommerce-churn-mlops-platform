@@ -12,13 +12,13 @@
 This project presents an end-to-end Data Engineering & MLOps platform for processing high-volume online retail transactions, maintaining a dimensional Star Schema Data Warehouse, generating business intelligence visual analytics, and operationalizing machine learning models for customer churn prediction.
 
 ### Key Highlights & Results:
-- **ETL Pipeline**: Ingested **9,486 raw records** across 12 monthly batch files (`batch_2010_12.csv` to `batch_2011_11.csv`).
-- **Data Quality & Rejection**: Automatically isolated **144 corrupted/invalid records** (missing customer IDs, negative prices, zero quantities, bad date formats) into `logs/rejected_records.csv`.
-- **Star Schema Data Warehouse**: Transformed **9,342 valid transaction records** into SQLite star schema tables (`dim_customer`, `dim_product`, `dim_geography`, `dim_date`, `fact_sales`) and built the analytical data mart `fact_customer_rfm` for 336 customers.
+- **ETL Pipeline**: Ingested **541,909 raw records** across 13 monthly batch files (`batch_2010_12.csv` to `batch_2011_12.csv`) extracted from `Online Retail.xlsx`.
+- **Data Quality & Rejection**: Automatically isolated **135,120 invalid records** (missing customer IDs, negative prices on unsolicited orders, zero quantities, bad date formats) into `logs/rejected_records.csv`.
+- **Star Schema Data Warehouse**: Transformed **406,789 valid transaction records** into SQLite star schema tables (`dim_customer`, `dim_product`, `dim_geography`, `dim_date`, `fact_sales`) and built the analytical data mart `fact_customer_rfm` for **4,371 real customers**.
 - **MLOps Model Benchmark**: Evaluated Logistic Regression, Random Forest, and XGBoost using a 90-day inactivity churn target.
-  - **Random Forest**: ROC-AUC = **1.0000**, F1-Score = **1.0000**
-  - **XGBoost**: ROC-AUC = **1.0000**, F1-Score = **1.0000**
-  - **Logistic Regression**: ROC-AUC = **0.9982**, F1-Score = **0.9615**
+  - **Random Forest**: ROC-AUC = **1.0000**, F1-Score = **1.0000**, Accuracy = **1.0000**
+  - **XGBoost**: ROC-AUC = **1.0000**, F1-Score = **0.9983**, Accuracy = **0.9989**
+  - **Logistic Regression**: ROC-AUC = **0.9992**, F1-Score = **0.9861**, Accuracy = **0.9909**
 - **Experiment Tracking**: Tracked all runs, hyper-parameters, and model artifacts with **MLflow**.
 - **Serving & Dashboard**: Implemented a **FastAPI** REST inference engine (`/predict`, `/predict/batch`, `/drift-status`) and a **6-tab interactive Streamlit Dashboard** with real-time churn prediction calculator and Kolmogorov-Smirnov feature drift monitoring.
 
@@ -27,7 +27,7 @@ This project presents an end-to-end Data Engineering & MLOps platform for proces
 ## 2. Part 1: Data Engineering & ETL Pipeline
 
 ### 2.1 Ingestion Architecture & Incremental Batch Extractor
-The ingestion framework (`src/etl/ingest.py`) reads monthly transaction extracts from `data/raw/` in landing area fashion. Key metadata (extraction timestamp, file status, raw row counts) is recorded in `logs/ingestion_history.csv` to ensure auditability and lineage tracking.
+The dataset conversion utility (`src/etl/convert_excel.py`) extracts `Online Retail.xlsx` into monthly batch files. The ingestion framework (`src/etl/ingest.py`) reads monthly transaction extracts from `data/raw/` in landing area fashion. Key metadata (extraction timestamp, file status, raw row counts) is recorded in `logs/ingestion_history.csv` to ensure auditability and lineage tracking.
 
 ```
 data/raw/batch_*.csv -> Landing Zone -> data/staging/raw_combined.csv
@@ -46,11 +46,11 @@ All rejected records are written to `logs/rejected_records.csv` with reason code
 ### 2.3 Dimensional Data Warehouse Schema
 The transformed dataset is stored in SQLite (`data/warehouse/ecommerce_dw.db`):
 
-- **`dim_customer`**: 336 customer records with primary country, first/last purchase timestamps, and total completed order counts.
-- **`dim_product`**: 30 distinct products with item descriptions and average prices.
-- **`dim_geography`**: 10 countries (United Kingdom, France, Germany, EIRE, Spain, Netherlands, Belgium, etc.).
+- **`dim_customer`**: 4,371 customer records with primary country, first/last purchase timestamps, and total completed order counts.
+- **`dim_product`**: 4,070 distinct products with item descriptions and average prices.
+- **`dim_geography`**: 37 countries (United Kingdom, France, Germany, EIRE, Spain, Netherlands, Belgium, etc.).
 - **`dim_date`**: Calendar lookup table with year, quarter, month, day, day_of_week, and weekend indicators.
-- **`fact_sales`**: 9,342 transaction fact records containing quantity, unit price, line revenue total, and cancellation status.
+- **`fact_sales`**: 406,789 transaction fact records containing quantity, unit price, line revenue total, and cancellation status.
 - **`fact_customer_rfm`**: Analytical data mart summarizing Recency, Frequency, Monetary value, Average Order Value, Total Items, Cancellation Rate, and Churn Label.
 
 ---
@@ -77,8 +77,8 @@ Three classification models were trained and tracked using MLflow (`src/ml/train
 | Model Name | Accuracy | Precision | Recall | F1-Score | ROC-AUC |
 |:---|:---:|:---:|:---:|:---:|:---:|
 | **Random Forest (100 Trees, Max Depth 6)** | **1.0000** | **1.0000** | **1.0000** | **1.0000** | **1.0000** |
-| **XGBoost (100 Trees, LR 0.1)** | **1.0000** | **1.0000** | **1.0000** | **1.0000** | **1.0000** |
-| **Logistic Regression** | **0.9706** | **1.0000** | **0.9259** | **0.9615** | **0.9982** |
+| **XGBoost (100 Trees, LR 0.1)** | **0.9989** | **0.9966** | **1.0000** | **0.9983** | **1.0000** |
+| **Logistic Regression** | **0.9909** | **1.0000** | **0.9725** | **0.9861** | **0.9992** |
 
 The **Random Forest** model was selected as the production model and exported to `models/best_model.pkl`.
 

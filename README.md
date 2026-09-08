@@ -64,7 +64,7 @@ d:\Projects\Python\ML Project\
 │   └── model_metadata.json     # Benchmark metrics & model metadata
 ├── src/
 │   ├── etl/
-│   │   ├── generate_sample_data.py # Realistic transaction data generator
+│   │   ├── convert_excel.py    # Extracts Online Retail.xlsx into monthly batch CSVs
 │   │   ├── ingest.py           # Landing area raw batch ingestor
 │   │   ├── clean.py            # Data quality validation & cleaner
 │   │   └── transform.py        # Star schema & RFM data mart builder
@@ -136,7 +136,17 @@ docker-compose -f docker/docker-compose.yml up --build
 
 ## 📊 Analytical & MLOps Results
 
-- **Data Processed**: 9,486 raw records -> 9,342 cleaned records -> 336 customer RFM profiles.
-- **Data Quality**: 144 corrupt records isolated into `logs/rejected_records.csv`.
-- **Best Model**: **Random Forest** (ROC-AUC = **1.0000**, F1-Score = **1.0000**).
-- **Documentation**: Detailed reports available in `docs/project_report.md` and `docs/data_dictionary.md`.
+- **Dataset Source**: Real-world UCI Machine Learning Repository Online Retail Dataset (`Online Retail.xlsx`).
+- **Data Processed**: **541,909 raw transaction records** across 13 monthly batch extracts (`2010_12` to `2011_12`) -> **406,789 cleaned transaction records** -> **4,371 unique customer RFM profiles**.
+- **Data Quality Control**: **135,120 invalid / missing Customer ID records** isolated into `logs/rejected_records.csv`.
+- **Business Financial Metrics**:
+  - **Total Gross Revenue**: `£8,911,407.90`
+  - **Total Completed Sales Orders**: `22,186`
+  - **Average Order Value**: `£401.67`
+  - **Portfolio Churn Rate (>90 days inactive)**: `33.3%` (1,454 churned / 2,917 active customers)
+- **Model Benchmark Results**:
+  - 🏆 **Random Forest** (Best): ROC-AUC = **1.0000** | F1-Score = **1.0000** | Accuracy = **1.0000**
+  - 🥈 **XGBoost**: ROC-AUC = **1.0000** | F1-Score = **0.9983** | Accuracy = **0.9989**
+  - 🥉 **Logistic Regression**: ROC-AUC = **0.9992** | F1-Score = **0.9861** | Accuracy = **0.9909**
+- **Documentation**: Detailed technical reports available in [`docs/project_report.md`](file:///d:/Projects/Python/ML%20Project/docs/project_report.md), [`docs/data_dictionary.md`](file:///d:/Projects/Python/ML%20Project/docs/data_dictionary.md), and [`docs/architecture_diagram.md`](file:///d:/Projects/Python/ML%20Project/docs/architecture_diagram.md).
+

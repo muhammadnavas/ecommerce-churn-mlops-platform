@@ -4,6 +4,10 @@ Calculates Kolmogorov-Smirnov (KS) test and Population Stability Index (PSI)
 to monitor feature distribution changes between baseline and new production data.
 """
 
+import sys
+import os
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
+
 import numpy as np
 import pandas as pd
 from scipy.stats import ks_2samp
