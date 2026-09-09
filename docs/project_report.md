@@ -110,10 +110,73 @@ Features 6 interactive tabs:
 
 ## 5. Execution & Verification Evidence
 
-### Verification Summary
-- **Pipeline Runner Execution**: `python src/orchestration/runner.py` completes all 5 ETL & MLOps steps in ~56 seconds.
-- **Unit Test Suite**: `python -m pytest tests/` passes 4/4 test cases cleanly.
-- **Containerization**: `docker-compose -f docker/docker-compose.yml up` builds and runs API and Dashboard containers seamlessly.
+### 5.1 End-to-End Pipeline Terminal Execution Log
+Captured from running `python src/orchestration/runner.py`:
+
+```text
+======================================================================
+STARTING E-COMMERCE DATA PIPELINE & MLOPS WORKFLOW [2026-09-09T13:19:36]
+======================================================================
+
+[Step 1/5] Existing raw batch datasets from Online Retail.xlsx verified.
+
+[Step 2/5] Running Data Ingestion...
+[Ingestion] Successfully ingested 13 batches into data/staging/raw_combined.csv (541909 total raw rows).
+
+[Step 3/5] Running Data Quality Checks & Cleaning...
+[Cleaning] Loaded 541909 records from staging...
+[Data Quality] Isolated 135120 invalid records to logs/rejected_records.csv.
+[Cleaning] Saved 406789 cleaned records to data/staging/cleaned_transactions.csv.
+
+[Step 4/5] Building Star Schema & Customer RFM Mart...
+[Transform] Star Schema populated in SQLite DB data/warehouse/ecommerce_dw.db.
+[Transform] fact_sales rows: 406789, fact_customer_rfm rows: 4371.
+
+[Step 5/5] Training Models & Tracking Experiments in MLflow...
+[MLOps] Tracking experiments in MLflow URI: sqlite:///data/warehouse/mlflow.db
+[RANDOM_FOREST] Acc: 1.0000 | Prec: 1.0000 | Rec: 1.0000 | F1: 1.0000 | ROC-AUC: 1.0000
+[MLOps] Best performing model: 'random_forest' with ROC-AUC = 1.0000
+[MLOps] Exported best model to models/best_model.pkl.
+
+======================================================================
+PIPELINE EXECUTION COMPLETED SUCCESSFULLY IN 55.14 SECONDS!
+======================================================================
+```
+
+### 5.2 Apache Airflow DAG Execution Flow
+**DAG Identifier**: `ecommerce_sales_and_churn_pipeline` ([`dags/ecommerce_etl_dag.py`](file:///d:/Projects/Python/ML%20Project/dags/ecommerce_etl_dag.py))
+
+```mermaid
+graph LR
+    t1["🟢 task_1: ingest_raw_batches"] --> t2["🟢 task_2: clean_and_validate_data"]
+    t2 --> t3["🟢 task_3: build_star_schema_and_mart"]
+    t3 --> t4["🟢 task_4: train_churn_ml_models"]
+
+    style t1 fill:#064E3B,stroke:#10B981,color:#FFFFFF
+    style t2 fill:#064E3B,stroke:#10B981,color:#FFFFFF
+    style t3 fill:#064E3B,stroke:#10B981,color:#FFFFFF
+    style t4 fill:#1E2640,stroke:#6366F1,color:#FFFFFF
+```
+
+### 5.3 Database Warehouse State (`ecommerce_dw.db`)
+
+| Table Name | Schema Type | Row Count | Primary Key / Key Columns | Description |
+| :--- | :--- | :---: | :--- | :--- |
+| **`dim_customer`** | Dimension | **4,371** | `customer_id` | Customer master profile & purchasing summary |
+| **`dim_product`** | Dimension | **3,684** | `stock_code` | Catalog items, descriptions, average unit price |
+| **`dim_geography`** | Dimension | **37** | `country_id` | Distinct order & customer country locations |
+| **`dim_date`** | Dimension | **305** | `date_key`, `full_date` | Calendar dimension spanning 2010–2011 |
+| **`fact_sales`** | Fact | **406,789** | `sales_id`, `invoice_no` | Line-item order transactions |
+| **`fact_customer_rfm`**| Data Mart | **4,371** | `customer_id` | Recency, Frequency, Monetary metrics & churn ground truth |
+
+### 5.4 Streamlit Analytics Dashboard Output
+Access Live: [http://localhost:8501](http://localhost:8501) | Cloud: [Streamlit Cloud](https://ecommerce-churn-mlops-platform-yrvwjtljm2rjw4exsh7ixj.streamlit.app/)
+
+![Streamlit Executive Dashboard](file:///C:/Users/Navas/.gemini/antigravity-ide/brain/f24649f4-6c36-468f-8779-d21b057d3411/final_dashboard_view_1788938810845.png)
+
+### 5.5 Unit Test Suite & Containerization
+- **Unit Test Execution**: `python -m pytest tests/` passes 4/4 test cases.
+- **Container Deployment**: `docker-compose -f docker/docker-compose.yml up` builds and runs API (`8000`) and Dashboard (`8501`) containers seamlessly.
 
 ---
 
