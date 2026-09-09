@@ -28,7 +28,7 @@ def main():
     tables = [t[0] for t in cur.execute("SELECT name FROM sqlite_master WHERE type='table'").fetchall() if t[0] != 'sqlite_sequence']
     
     print("\n" + "=" * 70)
-    print(" 📊 DATA WAREHOUSE (ecommerce_dw.db) RECORD COUNTS & VERIFICATION")
+    print(" DATA WAREHOUSE (ecommerce_dw.db) RECORD COUNTS & VERIFICATION")
     print("=" * 70)
     print(f"{'Table Name':<22} | {'Table Type':<12} | {'Row Count':>12}")
     print("-" * 70)
@@ -39,8 +39,8 @@ def main():
         print(f"{table:<22} | {table_type:<12} | {count:>12,}")
         
     print("=" * 70)
-    print("\n💡 Pipeline Funnel Summary:")
-    print("   541,909 Raw Records ➔ 406,789 Clean Transactions ➔ 4,371 Customer RFM Profiles")
+    print("\n[Pipeline Record Processing Funnel]")
+    print("  541,909 Raw Records -> 406,789 Clean Transactions -> 4,371 Customer Profiles")
     print("=" * 70 + "\n")
     
     conn.close()
