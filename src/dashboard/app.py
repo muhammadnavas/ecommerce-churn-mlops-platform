@@ -71,12 +71,19 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
+from pathlib import Path
+
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
+
 @st.cache_data(ttl=60)
 def load_warehouse_data(db_path="data/warehouse/ecommerce_dw.db"):
-    if not os.path.exists(db_path):
+    target_path = Path(db_path)
+    if not target_path.exists():
+        target_path = BASE_DIR / db_path
+    if not target_path.exists():
         return None, None, None, None, None
         
-    conn = sqlite3.connect(db_path)
+    conn = sqlite3.connect(str(target_path))
     fact_sales = pd.read_sql("SELECT * FROM fact_sales", conn)
     dim_customer = pd.read_sql("SELECT * FROM dim_customer", conn)
     dim_product = pd.read_sql("SELECT * FROM dim_product", conn)
@@ -90,14 +97,18 @@ def load_warehouse_data(db_path="data/warehouse/ecommerce_dw.db"):
     return fact_sales, dim_customer, dim_product, fact_rfm, dim_date
 
 def load_ml_artifacts(models_dir="models"):
-    model_path = os.path.join(models_dir, "best_model.pkl")
-    scaler_path = os.path.join(models_dir, "scaler.pkl")
-    meta_path = os.path.join(models_dir, "model_metadata.json")
+    target_dir = Path(models_dir)
+    if not target_dir.exists():
+        target_dir = BASE_DIR / models_dir
+        
+    model_path = target_dir / "best_model.pkl"
+    scaler_path = target_dir / "scaler.pkl"
+    meta_path = target_dir / "model_metadata.json"
     
-    model = joblib.load(model_path) if os.path.exists(model_path) else None
-    scaler = joblib.load(scaler_path) if os.path.exists(scaler_path) else None
+    model = joblib.load(str(model_path)) if model_path.exists() else None
+    scaler = joblib.load(str(scaler_path)) if scaler_path.exists() else None
     meta = None
-    if os.path.exists(meta_path):
+    if meta_path.exists():
         with open(meta_path, "r") as f:
             meta = json.load(f)
             
